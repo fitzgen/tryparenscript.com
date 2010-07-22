@@ -107,15 +107,19 @@
                                                    (+= buffer data))))
 
                      (@@ child (on "exit" (lambda ()
-                                            (@@ response (end buffer)))))
+                                            (@@ response
+                                                (end (if (!== buffer "")
+                                                         (@@ *json*
+                                                             (stringify (create :code buffer)))
+                                                         ""))))))
 
                      ;; Make sure that the error response is only written once,
                      ;; then replace it with an empty function.
                      (var error-handler (lambda (err)
                                           (@@ response
-                                              (write (@@ j-s-o-n
+                                              (write (@@ *json*
                                                          (stringify (create :error true)))))
-                                          (set! error-handler (lambda () null))))
+                                          (set! error-handler (lambda ()))))
                      (@@ child stderr (on "data" error-handler))
 
                      (@@ child stdin (end (replace-all *unacceptable-forms* "" code))))))

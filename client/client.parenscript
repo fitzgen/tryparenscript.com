@@ -8,24 +8,30 @@
 
              (defvar controller
                (@@ console-div
-                   (console (create 'prompt-label "ParenScript> "
-                                    ;; TODO: Check number of parens
-                                    'command-validate (func (line)
-                                                        (!== (strip line) ""))
-                                    'command-handle (lambda (line report)
-                                                      (@@ $ (get-j-s-o-n
-                                                             "/ps"
-                                                             (create 'code line)
-                                                             (lambda (data)
-                                                               (var ret null)
-                                                               (if (@ data error)
-                                                                   (report "error")
-                                                                   (try
-                                                                    (report (eval (@ data code)))
-                                                                    (:catch (err)
-                                                                      (report "Evaluation error")))))))))
+                   (console
+                    (create 'prompt-label "ParenScript> "
+                            ;; TODO: Check number of parens
+                            'command-validate (func (line)
+                                                (!== (strip line) ""))
+                            'command-handle (lambda (line report)
+                                              (@@ $ (get-j-s-o-n
+                                                     "/ps"
+                                                     (create :code line)
+                                                     (lambda (data)
+                                                       (var ret null)
+                                                       (if (@ data error)
+                                                           (report "error")
+                                                           (try
+                                                            (report (+ (@ data code)
+                                                                       #\Newline
+                                                                       (@@ $ (global-eval
+                                                                              (@ data code)))))
+                                                            (:catch (err)
+                                                              (report (+ (@ err message)
+                                                                         #\Newline
+                                                                         (@ err stack))))))))))
 
-                                    'autofocus true
-                                    'prompt-history true
-                                    'history-preserve-column true
-                                    'welcome-message "Enter ParenScript. May you live in interesting times."))))))
+                            'autofocus true
+                            'prompt-history true
+                            'history-preserve-column true
+                            'welcome-message "Enter ParenScript. May you live in interesting times.")))))))
