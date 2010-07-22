@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -e
+
+function buildFile() {
+    psfile=$1
+    jsfile=${psfile/parenscript/js}
+
+    echo "Building $jsfile"
+
+    echo "
+(require (quote parenscript))
+(in-package :ps)
+(load \"ps-helpers.lisp\")
+(compile-ps-file-to \"$psfile\" \"$jsfile\")
+(sb-ext:quit)" \
+    > .__temp_hack.lisp
+
+    sbcl --script .__temp_hack.lisp
+
+    rm .__temp_hack.lisp
+
+    echo "Built $jsfile"
+}
+
+./clean
+for file in `find . -type f -name "*.parenscript"`; do
+    buildFile $file
+done

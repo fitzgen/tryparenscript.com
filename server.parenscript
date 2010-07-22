@@ -1,0 +1,134 @@
+(defvar *url* (require "url"))
+(defvar *fs* (require "fs"))
+(defvar spawn (@ (require "child_process") spawn))
+
+;; ## Middlewares
+
+(defn (log-to-console fn)
+  (func (request response)
+    (@@ console (log (+ (@ request method) " " (@ request url))))
+    (fn request response)))
+
+;; Raise this error to signal a 404 error.
+(define-proto *not-found-error
+    :init (func (path)
+            (set! (@ this message) (+ "404 not found: " path)))
+    :inherits *error
+    :slots ((name "NotFoundError")))
+
+;; Display a helpful page when a url is not found
+(defn (handle-404s fn)
+  (func (request response)
+    (w/catch (e (fn request response))
+      (*not-found-error (w/slots (write-head end) response
+                          (write-head 404 (create "Text-Content" "text/html"))
+                          (end (+ "<h1>" (@ e message) "</h1>")))))))
+
+;; Catch all errors and generate a 500 page with a stack trace.
+(defn (handle-500s fn)
+  (lambda (request response)
+    (try
+     (return (fn request response))
+     (:catch (err)
+       (w/slots (write-head end) response
+         (write-head 500 (create "Text-Content" "text/html"))
+         (return (end (+ "<h1>" (@ err message) "</h1><pre>" (@ err stack) "</pre>"))))))))
+
+;; ## Url Routing
+
+(defvar url-map (create))
+
+(defn (register! path fn)
+  (set! (slot-value url-map path) fn))
+
+(defn (path request)
+  (@@ *url* (parse (@ request url)) pathname))
+
+(defn (route-dispatcher request response)
+  (if-let ((view (slot-value url-map (path request))))
+    (view request response)
+    (raise *not-found-error (path request))))
+
+;; ## Views
+
+(defn (make-static-handler resource mime-type)
+  (var cached null)
+  (func (req resp)
+    (var recur (@ arguments callee))
+    (w/slots (write-head end) resp
+      (if (!== cached null)
+          (progn (write-head 200 (create "Content-Type" mime-type))
+                 (end cached))
+          (@@ *fs* (read-file resource
+                              (lambda (err data)
+                                (if err
+                                    (progn
+                                      (@@ console (log (@ err message)))
+                                      (@@ console (log (@ err stack)))
+                                      (write-head 500 (create "Content-Type" "text/plain"))
+                                      (end (+ (@ err message) "\n\n" (@ err stack))))
+                                    (progn (set! cached data)
+                                           (recur req resp))))))))))
+
+(register! "/" (make-static-handler "client/index.html" "text/html"))
+(register! "/jquery.js"
+           (make-static-handler "client/jquery-1.4.2.min.js" "text/javascript"))
+(register! "/jquery.console.js"
+           (make-static-handler "client/jquery.console.js" "text/javascript"))
+(register! "/client.js"
+           (make-static-handler "client/client.js" "text/javascript"))
+
+;; Unfortunately, since I can't figure out how to create a secure sandbox for
+;; Lisp, macros present a security hole because the remote user could run *any*
+;; Lisp code they wanted on my server.
+(defvar *unacceptable-forms* '())
+(dolist (form
+          '("defmacro"
+            "defpsmacro"
+            "defmacro+ps"
+            "import-macros-from-lisp"
+            "symbol-macrolet"
+            "macrolet"))
+  (@@ *unacceptable-forms* (push (new (*reg-exp form "gi")))))
+
+(defun replace-all (regexps replacement str)
+  (dolist (re regexps)
+    (set! string (@@ str (replace re replacement))))
+  (return str))
+
+(register! "/ps" (func (request response)
+                   (let ((child (spawn "./ps-interpreter"))
+                         (buffer "")
+                         (code (@@ *url* (parse (@ request url) true) query code)))
+
+                     (@@ response (write-head 200 (create "Content-Type" "application/json")))
+
+                     (@@ child stdout (on "data" (lambda (data)
+                                                   (+= buffer data))))
+
+                     (@@ child (on "exit" (lambda ()
+                                            (@@ response (end buffer)))))
+
+                     ;; Make sure that the error response is only written once,
+                     ;; then replace it with an empty function.
+                     (var error-handler (lambda (err)
+                                          (@@ response
+                                              (write (@@ j-s-o-n
+                                                         (stringify (create :error true)))))
+                                          (set! error-handler (lambda () null))))
+                     (@@ child stderr (on "data" error-handler))
+
+                     (@@ child stdin (end (replace-all *unacceptable-forms* "" code))))))
+
+
+;; ## Create the server and begin listening
+
+(w/slots (create-server) (require "http")
+  (@@ (create-server (handle-500s
+                      (handle-404s
+                       (log-to-console
+                        route-dispatcher))))
+      (listen 8000)))
+
+(@@ console (log "Server listening on http://127.0.0.1:8000/"))
+(@@ console (log "^C to exit"))
