@@ -70,13 +70,17 @@
                                     (progn (set! cached data)
                                            (recur req resp))))))))))
 
-(register! "/" (make-static-handler "client/index.html" "text/html"))
+(register! "/" (make-static-handler (+ __dirname "/client/index.html")
+                                    "text/html"))
 (register! "/jquery.js"
-           (make-static-handler "client/jquery-1.4.2.min.js" "text/javascript"))
+           (make-static-handler (+ __dirname "/client/jquery-1.4.2.min.js")
+                                "text/javascript"))
 (register! "/jquery.console.js"
-           (make-static-handler "client/jquery.console.js" "text/javascript"))
+           (make-static-handler (+ __dirname "/client/jquery.console.js")
+                                "text/javascript"))
 (register! "/client.js"
-           (make-static-handler "client/client.js" "text/javascript"))
+           (make-static-handler (+ __dirname "/client/client.js")
+                                "text/javascript"))
 
 ;; Unfortunately, since I can't figure out how to create a secure sandbox for
 ;; Lisp, macros present a security hole because the remote user could run *any*
