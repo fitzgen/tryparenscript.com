@@ -3,14 +3,20 @@
   <head>
     <title>Try ParenScript</title>
     <style type="text/css" media="screen">
-      div#console { font-size: 14px; margin-top:1em }
+      body { margin: 0; padding: 0; }
+      div#about { width: 60%; margin: 0 auto;}
+      h1 { font-size: 3em; }
+      h1, h2 { text-align: center; margin: 10px; padding: 10px; }
+      div#console
+        { font-size: 14px; margin-top:1em; width: 100%;
+           height: 400px; }
       div#console div.jquery-console-inner
-       { width:900px; height:200px; background:#efefef; padding:0.5em;
-         overflow:auto }
+       { width:100%; height:400px; background:#efefef; padding:0.5em;
+         overflow:auto; }
       div#console div.jquery-console-prompt-box
        { color:#444; font-family:monospace; }
       div#console div.jquery-console-focus span.jquery-console-cursor
-       { background:#333; color:#eee; font-weight:bold }
+       { background:#333; color:#eee; font-weight:bold; }
       div#console div.jquery-console-message-error
        { color:#ef0505; font-family:sans-serif; font-weight:bold;
          padding:0.1em; }
@@ -19,12 +25,27 @@
          padding:0.1em; }
       div#console div.jquery-console-message
         { white-space:pre; font-family:monospace; }
-      div#console span.jquery-console-prompt-label { font-weight:bold }
+      div#console span.jquery-console-prompt-label { font-weight:bold; }
     </style>
   </head>
   <body>
     <h1>Try ParenScript</h1>
     <div id="console"></div>
+    <div id="about">
+      <h2>About</h2>
+      <p>
+        This site was developed by <a href="http://fitzgeraldnick.com/">Nick
+        Fitzgerald</a>
+        using <a href="http://common-lisp.net/project/parenscript/">ParenScript</a>,
+        <a href="http://nodejs.org/">Node JS</a>,
+        and <a href="http://github.com/chrisdone/jquery-console">jQuery
+        Console</a>. To learn more about
+        ParenScript, <a href="http://common-lisp.net/project/parenscript/tutorial.html">dive
+        in to the tutorial</a>. The source for this site
+        is <a href="http://github.com/fitzgen/tryparenscript.com">hosted on
+        GitHub</a>. Pull requests welcome!
+      </p>
+    </div>
     <script type="text/javascript" src="/jquery.js"></script>
     <script type="text/javascript" src="/jquery.console.js"></script>
     <script type="text/javascript" src="/client.js"></script>
