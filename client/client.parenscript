@@ -6,6 +6,25 @@
                (@@ str (replace (regex "/^\\s+/") "")
                        (replace (regex "/\\s+$/") "")))
 
+             (defun handle-response (code report)
+               (let ((fail (create)))
+                 (w/slots (__tryps_return __tryps_err) window
+                   (set! __tryps_return fail)
+                   (@@ $ (global-eval
+                          (+ "window.__tryps_return = " code)))
+                   (if (!== __tryps_return fail)
+                       (report (+ code #\Newline __tryps_return))
+                       (progn
+                         (@@ $ (global-eval (+ "try { "
+                                               code
+                                               " window.__tryps_return = 1;
+                                               } catch (e) { window.__tryps_err = e; }")))
+                         (if (!== __tryps_return fail)
+                             (report (+ code #\Newline undefined))
+                             (report (+ "error" (if __tryps_err
+                                                    (+ #\Newline (@ __tryps_err message))
+                                                    "")))))))))
+
              (defvar controller
                (@@ console-div
                    (console
@@ -19,18 +38,10 @@
                                                      (create :code line)
                                                      (lambda (data)
                                                        (var ret null)
-                                                       (if (@ data error)
+                                                       (if (or (! data)
+                                                               (@ data error))
                                                            (report "error")
-                                                           (try
-                                                            (report (+ (@ data code)
-                                                                       #\Newline
-                                                                       (@@ $ (global-eval
-                                                                              (@ data code)))))
-                                                            (:catch (err)
-                                                              (report (+ (@ err message)
-                                                                         #\Newline
-                                                                         (@ err stack))))))))))
-
+                                                           (handle-response (@ data code) report))))))
                             'autofocus true
                             'prompt-history true
                             'history-preserve-column true
