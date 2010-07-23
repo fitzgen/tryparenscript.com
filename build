@@ -9,8 +9,8 @@ function buildFile() {
     echo "Building $jsfile"
 
     echo "
-(require (quote parenscript))
-(in-package :ps)
+(require :parenscript)
+(in-package :parenscript)
 (load \"ps-helpers.lisp\")
 (compile-ps-file-to \"$psfile\" \"$jsfile\")
 (sb-ext:quit)" \
