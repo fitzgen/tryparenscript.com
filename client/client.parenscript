@@ -21,9 +21,9 @@
                                                } catch (e) { window.__tryps_err = e; }")))
                          (if (!== __tryps_return fail)
                              (report (+ code #\Newline undefined))
-                             (report (+ "error" (if __tryps_err
+                             (report (+ "error:" (if __tryps_err
                                                     (+ #\Newline (@ __tryps_err message))
-                                                    "")))))))))
+                                                    (+ #\Newline code))))))))))
 
              (defvar controller
                (@@ console-div
@@ -40,7 +40,9 @@
                                                        (var ret null)
                                                        (if (or (! data)
                                                                (@ data error))
-                                                           (report "error")
+                                                           (report (+ "error" (if (@ data error)
+                                                                                  (@ data error)
+                                                                                  "")))
                                                            (handle-response (@ data code) report))))))
                             "autofocus" true
                             "promptHistory" true
