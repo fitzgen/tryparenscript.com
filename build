@@ -27,3 +27,10 @@ function buildFile() {
 for file in `find . -type f -name "*.parenscript"`; do
     buildFile $file
 done
+
+# Add shebang to server.js and make it executable.
+server=$(cat server.js)
+echo "#!/usr/bin/env node" > server.js
+echo "" >> server.js
+echo $server >> server.js
+chmod +x server.js
