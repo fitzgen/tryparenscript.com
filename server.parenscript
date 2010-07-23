@@ -101,7 +101,7 @@
   (return str))
 
 (register! "/ps" (func (request response)
-                   (let ((child (spawn "./ps-interpreter"))
+                   (let ((child (spawn (+ __dirname "/ps-interpreter")))
                          (buffer "")
                          (code (@@ *url* (parse (@ request url) true) query code)))
 
