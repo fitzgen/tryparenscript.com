@@ -29,8 +29,8 @@ for file in `find . -type f -name "*.parenscript"`; do
 done
 
 # Add shebang to server.js and make it executable.
-server=$(cat server.js)
-echo "#!/usr/bin/env node" > server.js
-echo "" >> server.js
-echo $server >> server.js
+echo "#!/usr/bin/env node" > /tmp/server.js
+echo "" >> /tmp/server.js
+cat server.js >> /tmp/server.js
+mv /tmp/server.js server.js
 chmod +x server.js
