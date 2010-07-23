@@ -28,11 +28,11 @@
              (defvar controller
                (@@ console-div
                    (console
-                    (create 'prompt-label "ParenScript> "
+                    (create "promptLabel" "ParenScript> "
                             ;; TODO: Check number of parens
-                            'command-validate (func (line)
+                            "commandValidate" (func (line)
                                                 (!== (strip line) ""))
-                            'command-handle (lambda (line report)
+                            "commandHandle" (lambda (line report)
                                               (@@ $ (get-j-s-o-n
                                                      "/ps"
                                                      (create :code line)
@@ -42,7 +42,7 @@
                                                                (@ data error))
                                                            (report "error")
                                                            (handle-response (@ data code) report))))))
-                            'autofocus true
-                            'prompt-history true
-                            'history-preserve-column true
-                            'welcome-message "Enter ParenScript. May you live in interesting times.")))))))
+                            "autofocus" true
+                            "promptHistory" true
+                            "historyPreserveColumn" true
+                            "welcomeMessage" "Enter ParenScript. May you live in interesting times.")))))))
