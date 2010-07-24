@@ -99,7 +99,7 @@
 
 (defun replace-all (regexps replacement str)
   (dolist (re regexps)
-    (set! string (@@ str (replace re replacement))))
+    (set! str (@@ str (replace re replacement))))
   (return str))
 
 (register! "/ps" (func (request response)
