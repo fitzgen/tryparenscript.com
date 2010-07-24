@@ -12,6 +12,7 @@ function buildFile() {
 (require :parenscript)
 (in-package :parenscript)
 (load \"ps-helpers.lisp\")
+(setf *read-eval* nil)
 (compile-ps-file-to \"$psfile\" \"$jsfile\")
 (sb-ext:quit)" \
     > .__temp_hack.lisp
