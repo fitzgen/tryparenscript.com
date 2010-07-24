@@ -6,3 +6,7 @@ for file in `find . -type f -name "*.parenscript"`; do
         rm --verbose "$jsfile"
     fi
 done
+
+for file in `find . -type f -name "*.fasl"`; do
+    rm --verbose $file
+done
