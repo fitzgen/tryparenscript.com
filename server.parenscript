@@ -89,6 +89,8 @@
 (dolist (form
           '("defmacro"
             "defpsmacro"
+            "#."
+            #\#
             "defmacro+ps"
             "import-macros-from-lisp"
             "symbol-macrolet"
