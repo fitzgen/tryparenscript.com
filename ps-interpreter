@@ -3,4 +3,4 @@
 # Pass stdout to /dev/null and stderr to stdout. This is a hack to get around
 # how SBCL will always dump a ton of stuff to stdout, despite --no-inform or
 # --script.
-sbcl --script ps-interpreter.lisp 2>&1 > /dev/null
+sbcl --script "$(dirname $0)/ps-interpreter.lisp" 2>&1 > /dev/null
