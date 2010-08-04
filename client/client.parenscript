@@ -7,11 +7,14 @@
                        (replace (regex "/\\s+$/") "")))
 
              (defun handle-response (code report)
-               (let ((fail (create)))
+               (let ((fail (create))
+                     (func-dec-re (regex "^[\\s]*function[\\s]*[\\w]+")))
                  (w/slots (__tryps_return __tryps_err) window
                    (set! __tryps_return fail)
                    (@@ $ (global-eval
-                          (+ "window.__tryps_return = " code)))
+                          (if (@@ func-dec-re (test code))
+                              (+ code "; window.__tryps_return = undefined;")
+                              (+ "window.__tryps_return = " code))))
                    (if (!== __tryps_return fail)
                        (report (+ code #\Newline __tryps_return))
                        (progn
