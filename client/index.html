@@ -5,11 +5,12 @@
     <style type="text/css" media="screen">
       body { margin: 0; padding: 0; }
       div#about { width: 60%; margin: 0 auto;}
+      table { width: 100%; }
       h1 { font-size: 3em; }
       h1, h2 { text-align: center; margin: 10px; padding: 10px; }
       div#console
-        { font-size: 14px; margin-top:1em; width: 100%;
-           height: 400px; }
+       { font-size: 14px; margin-top:1em; width: 100%;
+          height: 400px; }
       div#console div.jquery-console-inner
        { width:100%; height:400px; background:#efefef; padding:0.5em;
          overflow:auto; }
@@ -32,6 +33,47 @@
     <h1>Try ParenScript</h1>
     <div id="console"></div>
     <div id="about">
+      <h2>Cheat Sheet</h2>
+      <div id="tut1">
+        <table>
+          <tr valign="center">
+            <th>ParenScript</th>
+            <th>JavaScript</th>
+          </tr>
+          <tr>
+            <td><code>(alert (+ 1 1))</code></td>
+            <td><code>alert(1 + 1);</code></td>
+          </tr>
+          <tr>
+            <td><pre>(defun factorial (n)
+  (if (< n 1)
+      1
+      (* n (factorial (- n 1)))))</pre></td>
+            <td><pre>function factorial(n) {
+    if (n < 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}</pre></td>
+          </tr>
+            <td><pre>(@ ($ "div") length)</pre></td>
+            <td><pre>$("div").length;</pre></td>
+          </tr>
+          </tr>
+            <td><pre>(chain ($ "h1")
+       (css "color" "green")
+       (html "Header 1")
+       (click (lambda ()
+                (alert "Clicked!"))))</pre></td>
+            <td><pre>$("h1").css("color", "green")
+       .html("Header 1")
+       .click(function () {
+                  alert("Clicked!");
+              });</pre></td>
+          </tr>
+        </table>
+      </div>
       <h2>About</h2>
       <p>
         This site was developed by <a href="http://fitzgeraldnick.com/">Nick
