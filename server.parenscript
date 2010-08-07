@@ -94,6 +94,8 @@
             "defmacro+ps"
             "import-macros-from-lisp"
             "symbol-macrolet"
+            "lisp"
+            "eval-when"
             "macrolet"))
   (@@ *unacceptable-forms* (push (new (*reg-exp form "gi")))))
 
