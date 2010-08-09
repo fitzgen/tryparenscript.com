@@ -19,7 +19,7 @@
   (dolist (c safe-read-blacklist)
     (set-macro-character c #'safe-reader-error nil rt))
 
-  (defun safe-read (&optional (stream *standard-input*) fail)
+  (defun safe-read (&optional (stream *standard-input*) fail (eof-error-p t) eof-value recursive-p)
     (if (streamp stream)
       (let ((*readtable* rt)
             (*read-eval* nil))
@@ -27,11 +27,10 @@
             ((error (lambda (condition)
                       (declare (ignore condition))
                       (return-from safe-read fail))))
-          (read stream)))
+          (read stream eof-error-p eof-value recursive-p)))
       fail)))
 
 (defun ps-safe-read (&optional (stream *standard-input*) (eof-error-p t) eof-value recursive-p)
-  (declare (ignore eof-error-p eof-value recursive-p))
   `(macrolet ((lisp (&rest args)
                 (declare (ignore args))
                 "Unsecure form: lisp")
@@ -50,7 +49,9 @@
               (macrolet (&rest args)
                 (declare (ignore args))
                 "Unsecure form: macrolet"))
-     ,(safe-read stream)))
+     ,(safe-read stream
+                 "Unsecure read error."
+                 eof-error-p eof-value recursive-p)))
 
 (setf *ps-read-function* #'ps-safe-read)
 
