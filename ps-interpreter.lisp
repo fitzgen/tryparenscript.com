@@ -5,7 +5,16 @@
 ;; Hoyte.
 
 ;; List of characters that are blacklisted from being read.
-(defvar safe-read-blacklist '(#\# #\: #\|))
+(defvar safe-read-char-blacklist '(#\# #\: #\|))
+
+;; List of forms that are blacklisted from being evaluated.
+(defvar safe-read-form-blacklist '(lisp
+                                   eval-when
+                                   defmacro
+                                   defmacro+ps
+                                   import-macros-from-lisp
+                                   symbol-macrolet
+                                   macrolet))
 
 (let ((rt (copy-readtable nil)))
 
@@ -16,7 +25,7 @@
     (error "reader error"))
 
   ;; Set each of the blaclisted characters' read functions to safe-reader-error.
-  (dolist (c safe-read-blacklist)
+  (dolist (c safe-read-char-blacklist)
     (set-macro-character c #'safe-reader-error nil rt))
 
   (defun safe-read (&optional (stream *standard-input*) fail (eof-error-p t) eof-value recursive-p)
@@ -31,24 +40,11 @@
       fail)))
 
 (defun ps-safe-read (&optional (stream *standard-input*) (eof-error-p t) eof-value recursive-p)
-  `(macrolet ((lisp (&rest args)
-                (declare (ignore args))
-                "Unsecure form: lisp")
-              (eval-when (&rest args)
-                (declare (ignore args))
-                "Unsecure form: eval-when")
-              (defmacro+ps (&rest args)
-                (declare (ignore args))
-                "Unsecure form: defmacro+ps")
-              (import-macros-from-lisp (&rest args)
-                (declare (ignore args))
-                "Unsecure form: import-macros-from-lisp")
-              (symbol-macrolet (&rest args)
-                (declare (ignore args))
-                "Unsecure form: symbol-macrolet")
-              (macrolet (&rest args)
-                (declare (ignore args))
-                "Unsecure form: macrolet"))
+  `(macrolet ,(mapcar (lambda (form)
+                        `(,form (&rest args)
+                           (declare (ignore args))
+                           (concatenate 'string "Unsecure form: " (symbol-name ,form))))
+                      safe-read-form-blacklist)
      ,(safe-read stream
                  "Unsecure read error."
                  eof-error-p eof-value recursive-p)))
